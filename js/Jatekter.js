@@ -7,7 +7,7 @@ export default class Jatekter {
   #szuloElem;
   #targyak = [];
   #lepesKoz = 2;
-  #jatekosMeret = 10; // átnéz
+  #jatekosMeret = 10; // összekötni a css-el: .entity width és height
   #targySzam = 5;
 
   constructor(szuloElem, pokemonData) {

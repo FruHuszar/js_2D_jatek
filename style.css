@@ -1,7 +1,7 @@
 :root {
-  --szin-hatter: whitesmoke;
-  --szin-kiemel: brown;
-  --szin-betu: black;
+  --szin-hatter: #eeeeff;
+  --szin-kiemel: #f6bd20;
+  --szin-betu: #2f3b33;
 }
 
 * {
@@ -24,12 +24,13 @@ body {
   background: var(--szin-betu);
   padding: 10px 20px;
   display: flex;
-  justify-content: space-around;
-  border-bottom: 3px solid var(--szin-kiemel);
+  justify-content: center;
+  border-bottom: 1px solid var(--szin-kiemel);
 }
 
 .stat-box {
   font-size: 1.2rem;
+  padding: 10px;
   font-weight: bold;
 }
 
@@ -54,8 +55,8 @@ body {
 
 .entity {
   position: absolute;
-  width: 10%;
-  height: 10%;
+  width: 13%;
+  height: 13%;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -81,6 +82,7 @@ img {
 
   #jatekter {
     width: 95vw;
+    /*aspect-ratio: 9 / 16; // ez csak torzulás nélkül */
   }
 }
 

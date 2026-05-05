@@ -38,3 +38,21 @@ project/
 ## Megvalósítás
 
 - Háttér relativ pozíció, játékelemek (collectible és játékos) absolute. top és left értékek változtatásával lehet mozogni. A reszponzivitás miatt ez (minden érték) százelékos (1 és 100 közt).
+
+### Prompt és beszélgetés
+
+- 1. Specifikáció átfogalmazása vázlat alapján
+- 2. Lépések megbeszélése
+- 3. Kód generálás lépésenként/fájlonként
+- 4. Továbbfejlesztések kérése
+- 5. // cleanup, javítások, ai nélkül
+
+link: https://gemini.google.com/share/7e5ba97fbd4b
+
+### Továbbfejlesztések
+
+- ❌ Pálya méretezése, dinamikus háttér
+- ❌ Billentyűkezelés: oldalsó + felső/alsó egyszerre lenyomása, nem darabos mozgás
+- ❌ Választható karakter
+- ❌ Health system: amíg nem ér a collektibleshez csökken
+- ❌ Játék státusz ellenőrzés: Nyertél/Vesztettél
