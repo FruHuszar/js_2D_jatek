@@ -1,0 +1,95 @@
+:root {
+  --szin-hatter: whitesmoke;
+  --szin-kiemel: brown;
+  --szin-betu: black;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--szin-betu);
+  color: var(--szin-hatter);
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#info-panel {
+  background: var(--szin-betu);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 3px solid var(--szin-kiemel);
+}
+
+.stat-box {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+#jatekter-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+#jatekter {
+  position: relative;
+  width: 90vw;
+  max-width: 800px;
+  aspect-ratio: 1 / 1;
+  border: 5px solid var(--szin-hatter);
+  background-size: cover;
+  background-position: center;
+  background-image: url("kepek/bg.avif"); /*placeholder*/
+}
+
+.entity {
+  position: absolute;
+  width: 10%;
+  height: 10%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: none;
+}
+
+.collectible {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: 5;
+}
+
+img {
+  user-select: none;
+}
+
+@media (orientation: portrait) {
+  #info-panel {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  #jatekter {
+    width: 95vw;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  #info-panel {
+    padding: 5px;
+  }
+  #jatekter {
+    height: 70vh;
+    width: auto;
+  }
+}
