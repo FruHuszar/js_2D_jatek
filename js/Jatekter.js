@@ -6,9 +6,17 @@ export default class Jatekter {
   #jatekos;
   #szuloElem;
   #targyak = [];
-  #lepesKoz = 2;
-  #jatekosMeret = 10; // összekötni a css-el: .entity width és height
   #targySzam = 5;
+  #jatekosMeret = 10;
+  
+  #keys = {
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
+  };
+
+  #sebesseg = 0.8; // Sebesség százalékban (mivel másodpercenként 60x fut le)
 
   constructor(szuloElem, pokemonData) {
     this.#szuloElem = szuloElem;
@@ -17,62 +25,66 @@ export default class Jatekter {
 
   init(pokemonData) {
     this.#jatekos = new Jatekos(pokemonData, this.#szuloElem);
-
+    
     for (let i = 0; i < this.#targySzam; i++) {
       this.#targyak.push(new Collectible(this.#szuloElem, i));
     }
 
-    this.billentyuzetFigyelo();
+    this.esemenyfigyelok();
     this.updateInfoPanel();
+    
+    this.gameLoop();
   }
 
-  billentyuzetFigyelo() {
+  /**
+   * Csak a naplót (keys) frissítjük, nem itt mozgatunk!
+   */
+  esemenyfigyelok() {
     window.addEventListener("keydown", (e) => {
-      let { x, y } = this.#jatekos.getHelyzet();
+      if (e.key in this.#keys) this.#keys[e.key] = true;
+    });
 
-      switch (e.key) {
-        case "ArrowUp":
-          y -= this.#lepesKoz;
-          break;
-        case "ArrowDown":
-          y += this.#lepesKoz;
-          break;
-        case "ArrowLeft":
-          x -= this.#lepesKoz;
-          break;
-        case "ArrowRight":
-          x += this.#lepesKoz;
-          break;
-        default:
-          return;
-      }
-
-      this.jatekosMozgatas(x, y);
+    window.addEventListener("keyup", (e) => {
+      if (e.key in this.#keys) this.#keys[e.key] = false;
     });
   }
 
   /**
-   * Mozgatja a játékost, de csak ha a pályán belül maradna
+   * Folyamatosan futó ciklus (requestAnimationFrame = ~60 FPS)
    */
-  jatekosMozgatas(ujX, ujY) {
-    if (ujX < 0) ujX = 0;
-    if (ujX > this.#meret.width - this.#jatekosMeret) {
-      ujX = this.#meret.width - this.#jatekosMeret;
+  gameLoop() {
+    this.frissites();
+    requestAnimationFrame(() => this.gameLoop());
+  }
+
+  frissites() {
+    let { x, y } = this.#jatekos.getHelyzet();
+    let dx = 0;
+    let dy = 0;
+
+    if (this.#keys.ArrowUp)    dy -= 1;
+    if (this.#keys.ArrowDown)  dy += 1;
+    if (this.#keys.ArrowLeft)  dx -= 1;
+    if (this.#keys.ArrowRight) dx += 1;
+
+    if (dx !== 0 || dy !== 0) {
+      x += dx * this.#sebesseg;
+      y += dy * this.#sebesseg;
+
+      if (x < 0) x = 0;
+      if (x > this.#meret.width - this.#jatekosMeret) x = this.#meret.width - this.#jatekosMeret;
+      if (y < 0) y = 0;
+      if (y > this.#meret.height - this.#jatekosMeret) y = this.#meret.height - this.#jatekosMeret;
+
+      this.#jatekos.setHelyzet({ x, y, dx, dy });
+      
+      this.utkozesEllenorzes();
     }
-
-    if (ujY < 0) ujY = 0;
-    if (ujY > this.#meret.height - this.#jatekosMeret) {
-      ujY = this.#meret.height - this.#jatekosMeret;
-    }
-
-    this.#jatekos.setHelyzet({ x: ujX, y: ujY });
-
-    this.utkozesEllenorzes();
   }
 
   utkozesEllenorzes() {
     const jatekosPos = this.#jatekos.getHelyzet();
-
+    
     for (let i = this.#targyak.length - 1; i >= 0; i--) {
       const targy = this.#targyak[i];
       const targyPos = targy.getPozicio();
@@ -83,11 +95,10 @@ export default class Jatekter {
         jatekosPos.y < targyPos.y + targyPos.meret &&
         jatekosPos.y + this.#jatekosMeret > targyPos.y
       ) {
-        // Ütközés történt!
-        this.#jatekos.targyFelvesz(); // Pontszám növelése
-        targy.eltuntet(); // Törlés a DOM-ból
-        this.#targyak.splice(i, 1); // Törlés a logikai listából
-        this.updateInfoPanel(); // UI frissítés
+        this.#jatekos.targyFelvesz();
+        targy.eltuntet();
+        this.#targyak.splice(i, 1);
+        this.updateInfoPanel();
       }
     }
   }
@@ -95,7 +106,6 @@ export default class Jatekter {
   updateInfoPanel() {
     const nevElem = document.getElementById("player-name");
     const pontElem = document.getElementById("player-score");
-
     if (nevElem) nevElem.innerText = this.#jatekos.getNev();
     if (pontElem) pontElem.innerText = this.#jatekos.getPontszam();
   }

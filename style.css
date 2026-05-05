@@ -73,6 +73,10 @@ img {
   user-select: none;
 }
 
+.mirror {
+  transform: scaleX(-1);
+}
+
 @media (orientation: portrait) {
   #info-panel {
     flex-direction: column;
