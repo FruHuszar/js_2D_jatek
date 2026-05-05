@@ -1,12 +1,11 @@
 import Jatekos from "./Jatekos.js";
-import Collectible from "./Collectible.js";
+import Collectibles from "./Collectibles.js";
 
 export default class Jatekter {
   #meret = { width: 100, height: 100 };
   #jatekos;
   #szuloElem;
-  #targyak = [];
-  #targySzam = 5;
+  #targyak;
   #jatekosMeret = 10;
   
   #keys = {
@@ -26,9 +25,7 @@ export default class Jatekter {
   init(pokemonData) {
     this.#jatekos = new Jatekos(pokemonData, this.#szuloElem);
     
-    for (let i = 0; i < this.#targySzam; i++) {
-      this.#targyak.push(new Collectible(this.#szuloElem, i));
-    }
+    this.#targyak = new Collectibles(this.#szuloElem);
 
     this.esemenyfigyelok();
     this.updateInfoPanel();
@@ -84,9 +81,10 @@ export default class Jatekter {
 
   utkozesEllenorzes() {
     const jatekosPos = this.#jatekos.getHelyzet();
+    const jelenlegiTargyak = this.#targyak.lista;
     
-    for (let i = this.#targyak.length - 1; i >= 0; i--) {
-      const targy = this.#targyak[i];
+    for (let i = jelenlegiTargyak.length - 1; i >= 0; i--) {
+      const targy = jelenlegiTargyak[i];
       const targyPos = targy.getPozicio();
 
       if (
@@ -96,9 +94,14 @@ export default class Jatekter {
         jatekosPos.y + this.#jatekosMeret > targyPos.y
       ) {
         this.#jatekos.targyFelvesz();
-        targy.eltuntet();
-        this.#targyak.splice(i, 1);
+        
+        this.#targyak.tavolit(i);
+        
         this.updateInfoPanel();
+
+        if (this.#targyak.darabszam === 0) {
+          this.#targyak.ujratolt();
+        }
       }
     }
   }
