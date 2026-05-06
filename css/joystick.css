@@ -9,6 +9,7 @@
 .switch {
   position: relative;
   display: inline-block;
+  margin-left: auto;
   width: 50px;
   height: 24px;
 }
