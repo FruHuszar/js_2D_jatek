@@ -5,6 +5,7 @@ export default class Iranyitas {
   #billentyuzet;
   #joystick;
   #joystickAktiv = false;
+  #deadzone = 0.1; // 10% alatti kitérést figyelmen kívül hagyunk
 
   constructor() {
     this.#billentyuzet = new Billentyuzet();
@@ -13,9 +14,6 @@ export default class Iranyitas {
     this.#toggleInicializalas();
   }
 
-  /**
-   * Összeköti a HTML gombot a Joystick láthatóságával
-   */
   #toggleInicializalas() {
     const btn = document.getElementById("joy-toggle");
 
@@ -33,32 +31,44 @@ export default class Iranyitas {
   }
 
   /**
-   * Kiszámolja a következő pozíciót a prioritások figyelembevételével.
-   * Ezt hívja meg a Jatekter a gameLoop-ban.
+   * Összefésüli a bemeneteket és visszaadja a végleges adatokat
    */
   kovetkezoHelyzet(jelenlegiPos, sebesseg) {
-    // 1. Lekérjük a billentyűzet adatait
-    let vektor = this.#billentyuzet.getVektor();
+    // 1. Billentyűzet lekérése (Digitális: 0 vagy 1)
+    let bVektor = this.#billentyuzet.getVektor();
+    let veglegesVektor = { dx: bVektor.dx, dy: bVektor.dy };
 
-    // 2. Prioritás: Ha a billentyűzet áll (0,0) ÉS a joystick be van kapcsolva
-    if (vektor.dx === 0 && vektor.dy === 0 && this.#joystickAktiv) {
-      vektor = this.#joystick.getVektor();
+    // 2. Ha a billentyűzeten nincs mozgás ÉS a joystick aktív
+    if (
+      veglegesVektor.dx === 0 &&
+      veglegesVektor.dy === 0 &&
+      this.#joystickAktiv
+    ) {
+      const jVektor = this.#joystick.getVektor();
+
+      // Holttér ellenőrzése: Csak akkor használjuk, ha elég nagy a kitérés
+      const kiteresMerteke = Math.sqrt(jVektor.dx ** 2 + jVektor.dy ** 2);
+
+      if (kiteresMerteke > this.#deadzone) {
+        veglegesVektor.dx = jVektor.dx;
+        veglegesVektor.dy = jVektor.dy;
+      }
     }
 
-    // 3. Mozgás számítása
-    let ujX = jelenlegiPos.x + vektor.dx * sebesseg;
-    let ujY = jelenlegiPos.y + vektor.dy * sebesseg;
+    // 3. Új pozíció kiszámítása (veglegesVektor már tartalmazza a boost-ot a Joystick.js-ből)
+    let ujX = jelenlegiPos.x + veglegesVektor.dx * sebesseg;
+    let ujY = jelenlegiPos.y + veglegesVektor.dy * sebesseg;
 
-    // 4. Határellenőrzés (90% mert a karakter szélessége kb 10%)
+    // 4. Határellenőrzés (a játéktér 100%-os, karakter kb 10%)
     ujX = Math.max(0, Math.min(90, ujX));
     ujY = Math.max(0, Math.min(90, ujY));
 
-    // Visszaadjuk a teljes csomagot, amit a Jatekos.setHelyzet() vár
+    // Visszatérünk a Jatekos.setHelyzet számára emészthető formátummal
     return {
       x: ujX,
       y: ujY,
-      dx: vektor.dx,
-      dy: vektor.dy,
+      dx: veglegesVektor.dx,
+      dy: veglegesVektor.dy,
     };
   }
 }

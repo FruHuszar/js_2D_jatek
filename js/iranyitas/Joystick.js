@@ -3,8 +3,9 @@ export default class Joystick {
   #stick;
   #aktiv = false;
   #vektor = { dx: 0, dy: 0 };
-  #sugar = 50; // A külső kör sugara (pixelben)
+  #sugar = 0; // Dinamikusan számoljuk
   #kozepont = { x: 0, y: 0 };
+  #boost = 1.2; // Szorzó, hogy a joystick dinamikusabb legyen
 
   constructor() {
     this.#base = document.getElementById("joystick-base");
@@ -16,16 +17,15 @@ export default class Joystick {
   }
 
   #esemenyfigyelok() {
-    // A 'pointerdown' kezeli az egeret és az érintést is
     this.#base.addEventListener("pointerdown", (e) => {
       this.#aktiv = true;
-
-      // Elfogjuk a pointert, hogy akkor is kövesse, ha kimegyünk a körből
       this.#base.setPointerCapture(e.pointerId);
 
+      // Méretek lekérése az aktuális állapot szerint (Reszponzivitás!)
       const rect = this.#base.getBoundingClientRect();
-      this.#kozepont.x = rect.left + rect.width / 2;
-      this.#kozepont.y = rect.top + rect.height / 2;
+      this.#sugar = rect.width / 2;
+      this.#kozepont.x = rect.left + this.#sugar;
+      this.#kozepont.y = rect.top + this.#sugar;
 
       this.#frissit(e);
     });
@@ -42,6 +42,7 @@ export default class Joystick {
   }
 
   #frissit(e) {
+    // Relatív elmozdulás kiszámítása
     let elmozdulasX = e.clientX - this.#kozepont.x;
     let elmozdulasY = e.clientY - this.#kozepont.y;
 
@@ -49,40 +50,48 @@ export default class Joystick {
       elmozdulasX * elmozdulasX + elmozdulasY * elmozdulasY
     );
 
-    if (tavolsag > this.#sugar) {
-      const arany = this.#sugar / tavolsag;
-      elmozdulasX *= arany;
-      elmozdulasY *= arany;
-    }
+    // Százalékos kitérés (0.0 és 1.0 között)
+    // Ha a sugár 50px és 50px-re húzzuk, a kiteres = 1
+    let kiteres = Math.min(tavolsag / this.#sugar, 1);
 
-    this.#stick.style.transform = `translate(${elmozdulasX}px, ${elmozdulasY}px)`;
-    this.#vektor.dx = elmozdulasX / this.#sugar;
-    this.#vektor.dy = elmozdulasY / this.#sugar;
+    // Irányvektor meghatározása (normalizálva)
+    // Ha nincs elmozdulás, ne osszunk nullával
+    const iranyX = tavolsag > 0 ? elmozdulasX / tavolsag : 0;
+    const iranyY = tavolsag > 0 ? elmozdulasY / tavolsag : 0;
+
+    // Vizuális megjelenítés (marad pixelben a transformhoz)
+    const vizualisX = iranyX * kiteres * this.#sugar;
+    const vizualisY = iranyY * kiteres * this.#sugar;
+    this.#stick.style.transform = `translate(${vizualisX}px, ${vizualisY}px)`;
+
+    // A Játékosnak szánt vektor: kitérés * boost
+    // Itt a matek már független a pixelektől!
+    this.#vektor.dx = iranyX * kiteres * this.#boost;
+    this.#vektor.dy = iranyY * kiteres * this.#boost;
+
+    // Határoljuk le, hogy a boost-tal se menjünk 1.5 fölé (vagy ahol kényelmes)
+    this.#vektor.dx = Math.max(-1.5, Math.min(1.5, this.#vektor.dx));
+    this.#vektor.dy = Math.max(-1.5, Math.min(1.5, this.#vektor.dy));
   }
 
   #leallit() {
     this.#aktiv = false;
     this.#vektor = { dx: 0, dy: 0 };
-    // Visszaugrik középre
     this.#stick.style.transform = `translate(0px, 0px)`;
   }
 
-  /**
-   * Megjeleníti a joystick vizuális elemeit
-   */
   mutat() {
     this.#base?.classList.remove("hidden");
   }
-
   elrejt() {
+    this.#elrejt();
+  } // Tisztább leállítással
+
+  #elrejt() {
     this.#base?.classList.add("hidden");
     this.#leallit();
   }
 
-  /**
-   * Az Iranyitas osztály ezen keresztül kéri le a joystick állapotát
-   * @returns {Object} {dx, dy}
-   */
   getVektor() {
     return { ...this.#vektor };
   }

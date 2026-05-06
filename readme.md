@@ -13,6 +13,10 @@ project/
 ├── index.html
 ├── style.css
 └── js/
+    └── iranyitas/
+        ├── Iranyitas.js
+        ├── Billentyuzet.js
+        ├── Joystick.js
     ├── index.js
     ├── Jatekter.js
     ├── Jatekos.js
