@@ -9,8 +9,11 @@ export default class Jatekter {
   #targyak;
   #iranyito;
   #jatekosMeret = 10;
+  #sebesseg = 0.8;
 
-  #sebesseg = 0.8; // Sebesség százalékban (mivel másodpercenként 60x fut le)
+  // Új privát változók az élethez
+  #eletBarElem;
+  #utolsoIdobelyeg = 0;
 
   constructor(szuloElem, pokemonData) {
     this.#szuloElem = szuloElem;
@@ -22,20 +25,26 @@ export default class Jatekter {
     this.#targyak = new Collectibles(this.#szuloElem);
     this.#iranyito = new Iranyitas();
 
+    // DOM elem lekérése
+    this.#eletBarElem = document.getElementById("elet-bar");
+
     this.updateInfoPanel();
 
-    this.gameLoop();
+    // Az első hívásnál elindítjuk a ciklust
+    requestAnimationFrame((most) => this.gameLoop(most));
   }
 
-  /**
-   * Folyamatosan futó ciklus (requestAnimationFrame = ~60 FPS)
-   */
-  gameLoop() {
-    this.frissites();
-    requestAnimationFrame(() => this.gameLoop());
+  gameLoop(most) {
+    // Delta time kiszámítása (ms)
+    const dt = most - this.#utolsoIdobelyeg;
+    this.#utolsoIdobelyeg = most;
+
+    this.frissites(dt);
+    requestAnimationFrame((kovetkezo) => this.gameLoop(kovetkezo));
   }
 
-  frissites() {
+  frissites(dt) {
+    // 1. Irányítás és mozgás
     const ujAdatok = this.#iranyito.kovetkezoHelyzet(
       this.#jatekos.getHelyzet(),
       this.#sebesseg
@@ -44,6 +53,14 @@ export default class Jatekter {
     if (ujAdatok.dx !== 0 || ujAdatok.dy !== 0) {
       this.#jatekos.setHelyzet(ujAdatok);
       this.utkozesEllenorzes();
+    }
+
+    // 2. Élet csökkentése idő alapon (ha már elindult a fogyás)
+    if (this.#jatekos.eletFogyasAktiv && this.#jatekos.elet > 0) {
+      // 10 másodperc alatt fogy el teljesen: (100 egység / 10000 ms) * eltelt ms
+      const csokkentes = (100 / 2000) * dt;
+      this.#jatekos.veszitEletet(csokkentes);
+      this.updateEletBar();
     }
   }
 
@@ -61,16 +78,31 @@ export default class Jatekter {
         jatekosPos.y < targyPos.y + targyPos.meret &&
         jatekosPos.y + this.#jatekosMeret > targyPos.y
       ) {
+        // A targyFelvesz() metódust a Jatekos.js-ben úgy módosítottuk,
+        // hogy pontot ad, aktiválja a fogyást és gyógyít.
         this.#jatekos.targyFelvesz();
 
         this.#targyak.tavolit(i);
-
         this.updateInfoPanel();
+        this.updateEletBar(); // Azonnali frissítés felvételkor
 
         if (this.#targyak.darabszam === 0) {
           this.#targyak.ujratolt();
         }
       }
+    }
+  }
+
+  updateEletBar() {
+    if (this.#eletBarElem) {
+      const szazalek = this.#jatekos.elet;
+      this.#eletBarElem.style.width = `${szazalek}%`;
+
+      // Szín váltás ha kevés az élet
+      this.#eletBarElem.style.background =
+        szazalek < 30
+          ? "linear-gradient(90deg, #ff0000, #b30000)"
+          : "linear-gradient(90deg, #ff4b2b, #ff416c)";
     }
   }
 

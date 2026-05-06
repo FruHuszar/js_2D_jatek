@@ -56,7 +56,8 @@ link: https://gemini.google.com/share/7e5ba97fbd4b
 ### Továbbfejlesztések
 
 - ❌ Pálya méretezése, dinamikus háttér
-- ❌ Billentyűkezelés: oldalsó + felső/alsó egyszerre lenyomása, nem darabos mozgás
+- ✔ Billentyűkezelés: oldalsó + felső/alsó egyszerre lenyomása, nem darabos mozgás -> új rendszer: gameloop() és keydown keys tömbre.
+- ✔+ Joystick hozzáadva, választható minden eszközön.
 - ❌ Választható karakter
 - ❌ Health system: amíg nem ér a collektibleshez csökken
 - ❌ Játék státusz ellenőrzés: Nyertél/Vesztettél

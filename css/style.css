@@ -46,59 +46,13 @@ body {
   position: relative;
   width: 90vw;
   max-width: 800px;
-  aspect-ratio: 1 / 1;
+  height: 70vh;
   border: 5px solid var(--szin-hatter);
   background-size: cover;
   background-position: center;
-  background-image: url("kepek/bg.avif"); /*placeholder*/
+  background-image: url("../kepek/bg.avif"); /*placeholder*/
 }
 
-.entity {
-  position: absolute;
-  width: 13%;
-  height: 13%;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  transition: none;
-}
-
-.collectible {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  z-index: 5;
-}
-
-img {
-  user-select: none;
-}
-
-.mirror {
-  transform: scaleX(-1);
-}
-
-#joystick-base {
-  position: fixed;
-  bottom: 50px;
-  left: 50px;
-  width: 100px;
-  height: 100px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-  z-index: 100;
-}
-#joystick-stick {
-  touch-action: none;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 50%;
-  top: 30px;
-  left: 30px;
-}
 .hidden {
   display: none !important;
 }
@@ -112,7 +66,6 @@ img {
 
   #jatekter {
     width: 95vw;
-    /*aspect-ratio: 9 / 16; // ez csak torzulás nélkül */
   }
 }
 

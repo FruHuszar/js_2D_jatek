@@ -1,0 +1,60 @@
+.entity {
+  position: absolute;
+  width: 13%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: none;
+}
+
+.collectible {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  z-index: 5;
+}
+
+img {
+  user-select: none;
+}
+
+.mirror {
+  transform: scaleX(-1);
+}
+
+/* Az életerő sáv külső kerete */
+.elet-bar-vaz {
+  width: 200px;
+  height: 20px;
+  background-color: #333; /* Sötét háttér a sávnak */
+  border: 2px solid #fff;
+  border-radius: 10px;
+  overflow: hidden; /* Hogy a belső csík ne lógjon ki a kerekítésnél */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* A ténylegesen mozgó színes csík */
+#elet-bar {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #ff4b2b,
+    #ff416c
+  ); /* Modern pirosas-pinkes szín */
+  width: 100%; /* Ez fog változni 100% és 0% között */
+  transition: width 0.2s linear; /* Ettől lesz folyamatos a zsugorodás */
+  box-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+}
+
+/* Elrendezés a fejlécben */
+.elet-kontener {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.elet-label {
+  font-weight: bold;
+  color: white;
+}

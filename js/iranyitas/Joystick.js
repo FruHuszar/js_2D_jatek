@@ -1,11 +1,13 @@
+// js/iranyitas/Joystick.js
+
 export default class Joystick {
   #base;
   #stick;
   #aktiv = false;
   #vektor = { dx: 0, dy: 0 };
-  #sugar = 0; // Dinamikusan számoljuk
+  #sugar = 0;
   #kozepont = { x: 0, y: 0 };
-  #boost = 1.2; // Szorzó, hogy a joystick dinamikusabb legyen
+  #boost = 1.25; // Szorzó, hogy a végsebesség elérje a billentyűzetét
 
   constructor() {
     this.#base = document.getElementById("joystick-base");
@@ -16,12 +18,18 @@ export default class Joystick {
     }
   }
 
+  /**
+   * Eseményfigyelők beállítása Pointer eseményekkel (Egér + Touch + Toll)
+   */
   #esemenyfigyelok() {
     this.#base.addEventListener("pointerdown", (e) => {
       this.#aktiv = true;
+
+      // Hozzáláncoljuk az eseményt az elemhez, hogy ha az ujj lecsúszik,
+      // akkor is kövesse a mozgást a pointerup-ig.
       this.#base.setPointerCapture(e.pointerId);
 
-      // Méretek lekérése az aktuális állapot szerint (Reszponzivitás!)
+      // Frissítjük a méreteket (fontos, ha közben elfordították a telefont)
       const rect = this.#base.getBoundingClientRect();
       this.#sugar = rect.width / 2;
       this.#kozepont.x = rect.left + this.#sugar;
@@ -39,59 +47,70 @@ export default class Joystick {
       this.#base.releasePointerCapture(e.pointerId);
       this.#leallit();
     });
+
+    // Ha váratlanul megszakad a kapcsolat (pl. bejövő hívás)
+    this.#base.addEventListener("pointercancel", () => {
+      this.#leallit();
+    });
   }
 
+  /**
+   * Kiszámolja a vektorokat és mozgatja a vizuális kart
+   */
   #frissit(e) {
-    // Relatív elmozdulás kiszámítása
-    let elmozdulasX = e.clientX - this.#kozepont.x;
-    let elmozdulasY = e.clientY - this.#kozepont.y;
+    // 1. Relatív távolság az ujj/egér és a joystick közepe között
+    let diffX = e.clientX - this.#kozepont.x;
+    let diffY = e.clientY - this.#kozepont.y;
 
-    const tavolsag = Math.sqrt(
-      elmozdulasX * elmozdulasX + elmozdulasY * elmozdulasY
-    );
+    // 2. Távolság (Pitagorasz)
+    const tavolsag = Math.sqrt(diffX * diffX + diffY * diffY);
 
-    // Százalékos kitérés (0.0 és 1.0 között)
-    // Ha a sugár 50px és 50px-re húzzuk, a kiteres = 1
+    // 3. Normalizált kitérés (0.0 - 1.0 között)
+    // Ez biztosítja, hogy a számítás független a pixelek számától.
     let kiteres = Math.min(tavolsag / this.#sugar, 1);
 
-    // Irányvektor meghatározása (normalizálva)
-    // Ha nincs elmozdulás, ne osszunk nullával
-    const iranyX = tavolsag > 0 ? elmozdulasX / tavolsag : 0;
-    const iranyY = tavolsag > 0 ? elmozdulasY / tavolsag : 0;
+    // 4. Irány meghatározása (egységvektor)
+    const iranyX = tavolsag > 0 ? diffX / tavolsag : 0;
+    const iranyY = tavolsag > 0 ? diffY / tavolsag : 0;
 
-    // Vizuális megjelenítés (marad pixelben a transformhoz)
-    const vizualisX = iranyX * kiteres * this.#sugar;
-    const vizualisY = iranyY * kiteres * this.#sugar;
-    this.#stick.style.transform = `translate(${vizualisX}px, ${vizualisY}px)`;
+    // 5. Vizuális visszacsatolás (Stick mozgatása a határokon belül)
+    const vizuX = iranyX * kiteres * this.#sugar;
+    const vizuY = iranyY * kiteres * this.#sugar;
+    this.#stick.style.transform = `translate(${vizuX}px, ${vizuY}px)`;
 
-    // A Játékosnak szánt vektor: kitérés * boost
-    // Itt a matek már független a pixelektől!
+    // 6. Kimeneti vektor kiszámítása boost-tal
+    // A dx/dy értéke így 0 és 1.25 (vagy boost értéke) közé esik.
     this.#vektor.dx = iranyX * kiteres * this.#boost;
     this.#vektor.dy = iranyY * kiteres * this.#boost;
-
-    // Határoljuk le, hogy a boost-tal se menjünk 1.5 fölé (vagy ahol kényelmes)
-    this.#vektor.dx = Math.max(-1.5, Math.min(1.5, this.#vektor.dx));
-    this.#vektor.dy = Math.max(-1.5, Math.min(1.5, this.#vektor.dy));
   }
 
+  /**
+   * Alaphelyzetbe állítás
+   */
   #leallit() {
     this.#aktiv = false;
     this.#vektor = { dx: 0, dy: 0 };
-    this.#stick.style.transform = `translate(0px, 0px)`;
+    if (this.#stick) {
+      this.#stick.style.transform = `translate(0px, 0px)`;
+    }
   }
 
+  /**
+   * Publikus metódusok a Manager (Iranyitas.js) számára
+   */
   mutat() {
     this.#base?.classList.remove("hidden");
   }
-  elrejt() {
-    this.#elrejt();
-  } // Tisztább leállítással
 
-  #elrejt() {
+  elrejt() {
     this.#base?.classList.add("hidden");
     this.#leallit();
   }
 
+  /**
+   * Visszaadja a jelenlegi irányvektort
+   * @returns {Object} {dx, dy}
+   */
   getVektor() {
     return { ...this.#vektor };
   }
