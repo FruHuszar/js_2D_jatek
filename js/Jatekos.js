@@ -18,8 +18,8 @@ export default class Jatekos {
     this.megjelenit();
   }
 
-  targyFelvesz() {
-    this.pontszam++;
+  targyFelvesz(isGold = false) {
+    this.pontszam += isGold ? 5 : 1;
     this.gyogyul();
 
     if (this.pontszam === 1) {

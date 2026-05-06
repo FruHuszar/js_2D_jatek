@@ -84,9 +84,13 @@ link: https://gemini.google.com/share/7e5ba97fbd4b
 ### Metódusok, kódok
 
 - Joystick kattintás és mozgatás során a cursor visszaáll default-ra, ezért:
-
 ```css
 body:has(#joystick-stick:active) {
   cursor: pointer;
 }
+```
+
+- Igaz/Hamis alapján css osztály adása/eltávolítása:
+```javascript
+elem.classList.toggle("arany-filter", this.#isGold);
 ```

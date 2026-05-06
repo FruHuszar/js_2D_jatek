@@ -89,7 +89,7 @@ export default class Jatekter {
         jatekosPos.y < targyPos.y + targyPos.meret &&
         jatekosPos.y + jatekosMeret.h > targyPos.y
       ) {
-        this.#jatekos.targyFelvesz();
+        this.#jatekos.targyFelvesz(targy.isGold);
 
         this.#targyak.tavolit(i);
         this.updateInfoPanel();

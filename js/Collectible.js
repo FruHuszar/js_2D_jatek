@@ -4,23 +4,37 @@ export default class Collectible {
   #id;
   #szuloElem;
   #meret = 4;
+  #isGold = false;
 
   constructor(szuloElem, id) {
     this.#szuloElem = szuloElem;
     this.#id = `targy-${id}`;
+    this.#isGold = Math.random() < 0.30;
+
     this.megjelenit();
     this.frissitMeret();
     this.#ujraPozicional();
 
     /*
-    1. Arany collectible labda: 5 pontot ad.
     2. x pontonként új karakter lehetőség
     */
   }
 
+  set isGold(ertek) {
+    this.#isGold = ertek;
+    const elem = document.getElementById(this.#id);
+    if (elem) {
+      elem.classList.toggle("arany-filter", this.#isGold);
+    }
+  }
+
+  get isGold() {
+    return this.#isGold;
+  }
+
   megjelenit() {
     const targyKod = `
-      <div id="${this.#id}" class="entity collectible" style="
+      <div id="${this.#id}" class="${this.#isGold ? "arany-filter" : ""} entity collectible" style="
         left: ${this.#x}%; 
         top: ${this.#y}%; 
         width: ${this.#meret}%; 
