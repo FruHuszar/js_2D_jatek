@@ -8,10 +8,9 @@ export default class Jatekter {
   #szuloElem;
   #targyak;
   #iranyito;
-  #jatekosMeret = 10;
+  #jatekosMeret = 13;
   #sebesseg = 0.8;
 
-  // Új privát változók az élethez
   #eletBarElem;
   #utolsoIdobelyeg = 0;
 
@@ -25,40 +24,44 @@ export default class Jatekter {
     this.#targyak = new Collectibles(this.#szuloElem);
     this.#iranyito = new Iranyitas();
 
-    // DOM elem lekérése
     this.#eletBarElem = document.getElementById("elet-bar");
 
     this.updateInfoPanel();
 
-    // Az első hívásnál elindítjuk a ciklust
     requestAnimationFrame((most) => this.gameLoop(most));
   }
 
   gameLoop(most) {
-    // Delta time kiszámítása (ms)
-    const dt = most - this.#utolsoIdobelyeg;
+    const idoSzamit = most - this.#utolsoIdobelyeg;
     this.#utolsoIdobelyeg = most;
 
-    this.frissites(dt);
+    this.frissites(idoSzamit);
     requestAnimationFrame((kovetkezo) => this.gameLoop(kovetkezo));
   }
 
-  frissites(dt) {
-    // 1. Irányítás és mozgás
+  frissites(idoSzamit) {
+    const jelenlegiHelyzet = this.#jatekos.getHelyzet();
     const ujAdatok = this.#iranyito.kovetkezoHelyzet(
-      this.#jatekos.getHelyzet(),
-      this.#sebesseg
+      jelenlegiHelyzet,
+      this.#sebesseg,
     );
 
-    if (ujAdatok.dx !== 0 || ujAdatok.dy !== 0) {
-      this.#jatekos.setHelyzet(ujAdatok);
-      this.utkozesEllenorzes();
-    }
+    const jatekosSzelesseg = 10;
+    const jatekosMagassag = 10; // Ha négyzetes, vagy mérd le pontosan
 
-    // 2. Élet csökkentése idő alapon (ha már elindult a fogyás)
+    if (ujAdatok.x < 0) ujAdatok.x = 0;
+    if (ujAdatok.x > 100 - jatekosSzelesseg)
+      ujAdatok.x = 100 - jatekosSzelesseg;
+
+    if (ujAdatok.y < 0) ujAdatok.y = 0;
+    if (ujAdatok.y > 100 - jatekosMagassag) ujAdatok.y = 100 - jatekosMagassag;
+
+    this.#jatekos.setHelyzet(ujAdatok);
+    this.utkozesEllenorzes();
+
     if (this.#jatekos.eletFogyasAktiv && this.#jatekos.elet > 0) {
       // 10 másodperc alatt fogy el teljesen: (100 egység / 10000 ms) * eltelt ms
-      const csokkentes = (100 / 2000) * dt;
+      const csokkentes = (100 / 2000) * idoSzamit;
       this.#jatekos.veszitEletet(csokkentes);
       this.updateEletBar();
     }
@@ -78,13 +81,11 @@ export default class Jatekter {
         jatekosPos.y < targyPos.y + targyPos.meret &&
         jatekosPos.y + this.#jatekosMeret > targyPos.y
       ) {
-        // A targyFelvesz() metódust a Jatekos.js-ben úgy módosítottuk,
-        // hogy pontot ad, aktiválja a fogyást és gyógyít.
         this.#jatekos.targyFelvesz();
 
         this.#targyak.tavolit(i);
         this.updateInfoPanel();
-        this.updateEletBar(); // Azonnali frissítés felvételkor
+        this.updateEletBar();
 
         if (this.#targyak.darabszam === 0) {
           this.#targyak.ujratolt();
@@ -98,7 +99,6 @@ export default class Jatekter {
       const szazalek = this.#jatekos.elet;
       this.#eletBarElem.style.width = `${szazalek}%`;
 
-      // Szín váltás ha kevés az élet
       this.#eletBarElem.style.background =
         szazalek < 30
           ? "linear-gradient(90deg, #ff0000, #b30000)"

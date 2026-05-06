@@ -7,7 +7,7 @@ export default class Joystick {
   #vektor = { dx: 0, dy: 0 };
   #sugar = 0;
   #kozepont = { x: 0, y: 0 };
-  #boost = 1.25; // Szorzó, hogy a végsebesség elérje a billentyűzetét
+  #boost = 1.8;
 
   constructor() {
     this.#base = document.getElementById("joystick-base");

@@ -8,20 +8,38 @@ Egy JavaScript alapú, rácsos vagy pixel alapú mozgást használó 2D játék 
 
 ```css
 /*
+Kezdeti mappaszerkezet: 
 project/
 │
 ├── index.html
 ├── style.css
 └── js/
-    └── iranyitas/
-        ├── Iranyitas.js
-        ├── Billentyuzet.js
-        ├── Joystick.js
     ├── index.js
     ├── Jatekter.js
     ├── Jatekos.js
     ├── Collectible.js
     └── Service.js
+
+
+Végső mappaszerkezet:  
+project/
+│
+├── index.html
+└── css/
+    ├── style.css
+    ├── header.css
+    ├── entitas.css
+    └── joystick.css
+└── js/
+    └── iranyitas/
+        ├── Iranyitas.js
+        ├── Billentyuzet.js
+        └── Joystick.js
+    ├── index.js
+    ├── Jatekter.js
+    ├── Jatekos.js
+    ├── Collectible.js
+    └── Service.js   
 */
 ```
 
@@ -45,11 +63,11 @@ project/
 
 ### Prompt és beszélgetés
 
-- 1. Specifikáció átfogalmazása vázlat alapján
-- 2. Lépések megbeszélése
-- 3. Kód generálás lépésenként/fájlonként
-- 4. Továbbfejlesztések kérése
-- 5. // cleanup, javítások, ai nélkül
+1. Specifikáció átfogalmazása vázlat alapján
+2. Lépések megbeszélése
+3. Kód generálás lépésenként/fájlonként
+4. Továbbfejlesztések kérése
+5. cleanup, javítások, ai nélkül
 
 link: https://gemini.google.com/share/7e5ba97fbd4b
 
@@ -59,5 +77,16 @@ link: https://gemini.google.com/share/7e5ba97fbd4b
 - ✔ Billentyűkezelés: oldalsó + felső/alsó egyszerre lenyomása, nem darabos mozgás -> új rendszer: gameloop() és keydown keys tömbre.
 - ✔+ Joystick hozzáadva, választható minden eszközön.
 - ❌ Választható karakter
-- ❌ Health system: amíg nem ér a collektibleshez csökken
+- ✔ Health system: amíg nem ér a collektibleshez csökken
+- ✔+ Nehézség választása (health csökkenés sebessége) / szint system: egyre gyorsabb, egyre többet kell gyűjteni
 - ❌ Játék státusz ellenőrzés: Nyertél/Vesztettél
+
+### Metódusok, kódok
+
+- Joystick kattintás és mozgatás során a cursor visszaáll default-ra, ezért:
+
+```css
+body:has(#joystick-stick:active) {
+  cursor: pointer;
+}
+```

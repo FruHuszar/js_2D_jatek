@@ -5,7 +5,6 @@ export default class Jatekos {
   #nev;
   #elem;
 
-  // Publikus mezők, hogy a Jatekter könnyen elérje
   pontszam = 0;
   elet = 100;
   eletFogyasAktiv = false;
@@ -19,7 +18,6 @@ export default class Jatekos {
     this.megjelenit();
   }
 
-  // Ezt hívja a Jatekter ütközéskor!
   targyFelvesz() {
     this.pontszam++;
     this.gyogyul();
@@ -88,5 +86,5 @@ export default class Jatekos {
   }
   getPontszam() {
     return this.pontszam;
-  } // Most már a jót adja vissza
+  }
 }
