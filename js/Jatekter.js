@@ -8,7 +8,6 @@ export default class Jatekter {
   #szuloElem;
   #targyak;
   #iranyito;
-  #jatekosMeret = 13;
   #sebesseg = 0.8;
 
   #eletBarElem;
@@ -32,6 +31,7 @@ export default class Jatekter {
   }
 
   gameLoop(most) {
+    // Delta time kiszámítása (ms)
     const idoSzamit = most - this.#utolsoIdobelyeg;
     this.#utolsoIdobelyeg = most;
 
@@ -40,46 +40,54 @@ export default class Jatekter {
   }
 
   frissites(idoSzamit) {
-    const jelenlegiHelyzet = this.#jatekos.getHelyzet();
-    const ujAdatok = this.#iranyito.kovetkezoHelyzet(
-      jelenlegiHelyzet,
+    // 1. Irányítás és mozgás (az Iranyitas.js most már korlátozás nélküli koordinátákat ad)
+    const javasoltAdatok = this.#iranyito.kovetkezoHelyzet(
+      this.#jatekos.getHelyzet(),
       this.#sebesseg,
     );
 
-    const jatekosSzelesseg = 10;
-    const jatekosMagassag = 10; // Ha négyzetes, vagy mérd le pontosan
+    // 2. Határellenőrzés alkalmazása a javasolt koordinátákra
+    const veglegesAdatok = this.#hatarEllenorzes(javasoltAdatok);
 
-    if (ujAdatok.x < 0) ujAdatok.x = 0;
-    if (ujAdatok.x > 100 - jatekosSzelesseg)
-      ujAdatok.x = 100 - jatekosSzelesseg;
-
-    if (ujAdatok.y < 0) ujAdatok.y = 0;
-    if (ujAdatok.y > 100 - jatekosMagassag) ujAdatok.y = 100 - jatekosMagassag;
-
-    this.#jatekos.setHelyzet(ujAdatok);
-    this.utkozesEllenorzes();
+    // Csak akkor frissítünk, ha mozgás történik
+    if (javasoltAdatok.dx !== 0 || javasoltAdatok.dy !== 0) {
+      this.#jatekos.setHelyzet(veglegesAdatok);
+      this.utkozesEllenorzes();
+    }
 
     if (this.#jatekos.eletFogyasAktiv && this.#jatekos.elet > 0) {
-      // 10 másodperc alatt fogy el teljesen: (100 egység / 10000 ms) * eltelt ms
+      // 10 másodperc alatt fogy el teljesen: (100 egység / 2000 ms) * eltelt ms
       const csokkentes = (100 / 2000) * idoSzamit;
       this.#jatekos.veszitEletet(csokkentes);
       this.updateEletBar();
     }
   }
 
+  #hatarEllenorzes(adatok) {
+    const meret = this.#jatekos.getMeret(); // Most már {w, h} objektumot kapunk
+    const korrigaltAdatok = { ...adatok };
+
+    korrigaltAdatok.x = Math.max(0, Math.min(100 - meret.w, adatok.x));
+    korrigaltAdatok.y = Math.max(0, Math.min(100 - meret.h, adatok.y));
+
+    return korrigaltAdatok;
+  }
+
   utkozesEllenorzes() {
     const jatekosPos = this.#jatekos.getHelyzet();
+    const jatekosMeret = this.#jatekos.getMeret(); // {w, h}
     const jelenlegiTargyak = this.#targyak.lista;
 
     for (let i = jelenlegiTargyak.length - 1; i >= 0; i--) {
       const targy = jelenlegiTargyak[i];
-      const targyPos = targy.getPozicio();
+      const targyPos = targy.getPozicio(); // {x, y, meret}
 
+      // Ütközés ellenőrzése a szélesség (.w) és magasság (.h) használatával
       if (
         jatekosPos.x < targyPos.x + targyPos.meret &&
-        jatekosPos.x + this.#jatekosMeret > targyPos.x &&
+        jatekosPos.x + jatekosMeret.w > targyPos.x &&
         jatekosPos.y < targyPos.y + targyPos.meret &&
-        jatekosPos.y + this.#jatekosMeret > targyPos.y
+        jatekosPos.y + jatekosMeret.h > targyPos.y
       ) {
         this.#jatekos.targyFelvesz();
 

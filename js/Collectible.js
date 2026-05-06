@@ -11,6 +11,11 @@ export default class Collectible {
     this.megjelenit();
     this.frissitMeret();
     this.#ujraPozicional();
+
+    /*
+    1. Arany collectible labda: 5 pontot ad.
+    2. x pontonként új karakter lehetőség
+    */
   }
 
   megjelenit() {

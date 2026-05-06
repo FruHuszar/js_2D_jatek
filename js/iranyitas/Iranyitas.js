@@ -59,11 +59,8 @@ export default class Iranyitas {
     let ujX = jelenlegiPos.x + veglegesVektor.dx * sebesseg;
     let ujY = jelenlegiPos.y + veglegesVektor.dy * sebesseg;
 
-    // 4. Határellenőrzés (a játéktér 100%-os, karakter kb 10%)
-    ujX = Math.max(0, Math.min(90, ujX));
-    ujY = Math.max(0, Math.min(90, ujY));
-
     // Visszatérünk a Jatekos.setHelyzet számára emészthető formátummal
+    // A határellenőrzés kikerült, azt a Jatekter végzi el a kapott értékeken
     return {
       x: ujX,
       y: ujY,

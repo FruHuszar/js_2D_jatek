@@ -78,12 +78,26 @@ export default class Jatekos {
     }
   }
 
+  getMeret() {
+    if (!this.#elem || !this.szuloElem) return { w: 10, h: 10 };
+
+    const elemRect = this.#elem.getBoundingClientRect();
+    const szuloRect = this.szuloElem.getBoundingClientRect();
+
+    return {
+      w: (elemRect.width / szuloRect.width) * 100,
+      h: (elemRect.height / szuloRect.height) * 100,
+    };
+  }
+
   getHelyzet() {
     return { ...this.#helyzet };
   }
+
   getNev() {
     return this.#nev.charAt(0).toUpperCase() + this.#nev.slice(1);
   }
+
   getPontszam() {
     return this.pontszam;
   }

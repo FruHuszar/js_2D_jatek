@@ -7,7 +7,7 @@ export default class Joystick {
   #vektor = { dx: 0, dy: 0 };
   #sugar = 0;
   #kozepont = { x: 0, y: 0 };
-  #boost = 1.8;
+  #boost = 1.9;
 
   constructor() {
     this.#base = document.getElementById("joystick-base");
@@ -84,9 +84,6 @@ export default class Joystick {
     this.#vektor.dy = iranyY * kiteres * this.#boost;
   }
 
-  /**
-   * Alaphelyzetbe állítás
-   */
   #leallit() {
     this.#aktiv = false;
     this.#vektor = { dx: 0, dy: 0 };
@@ -95,9 +92,6 @@ export default class Joystick {
     }
   }
 
-  /**
-   * Publikus metódusok a Manager (Iranyitas.js) számára
-   */
   mutat() {
     this.#base?.classList.remove("hidden");
   }
