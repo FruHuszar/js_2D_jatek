@@ -22,7 +22,7 @@ export default class Jatekos {
     this.pontszam += isGold ? 5 : 1;
     this.gyogyul();
 
-    if (this.pontszam === 1) {
+    if (this.pontszam >= 1) {
       this.eletInditasa();
     }
   }
